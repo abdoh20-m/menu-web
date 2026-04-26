@@ -16,14 +16,32 @@
         <h2 id="tableText">جاري فحص الطاولة...</h2>
         <a href="#" class="btn">تصفح القائمة الآن</a>
     </div>
-    <script>
-      // كود ذكي يقرأ الرقم سواء كان بالمسار /1 أو بعد علامة الاستفهام ?id=1
-const urlParams = new URLSearchParams(window.location.search);
-const idFromQuery = urlParams.get('id');
-const path = window.location.pathname.split('/').pop();
+    <a href="#" id="openAppBtn" class="btn">تصفح القائمة في التطبيق</a>
 
-const tableNum = idFromQuery || path || "غير محددة";
-document.getElementById('tableText').innerText = "طاولة رقم: " + tableNum;
-    </script>
+<script>
+    // 1. قراءة رقم الطاولة
+    const urlParams = new URLSearchParams(window.location.search);
+    const idFromQuery = urlParams.get('id');
+    const path = window.location.pathname.split('/').pop();
+    const tableNum = idFromQuery || path || "";
+
+    document.getElementById('tableText').innerText = "طاولة رقم: " + (tableNum || "غير محددة");
+
+    // 2. الربط مع التطبيق
+    const openAppBtn = document.getElementById('openAppBtn');
+    
+    // الرابط الذي سيفهمه الأندرويد (تأكد أنه نفس الذي وضعته في Android Studio)
+    const appUrl = "http://akillimenu.com/" + tableNum; 
+
+    openAppBtn.onclick = function() {
+        // محاولة فتح التطبيق
+        window.location.href = appUrl;
+        
+        // إذا لم يفتح التطبيق خلال ثانيتين، يمكننا توجيهه لصفحة ويب أخرى أو تنبيهه
+        setTimeout(function() {
+            alert("إذا لم يفتح التطبيق، يرجى التأكد من تثبيته على جهازك.");
+        }, 2000);
+    };
+</script>
 </body>
 </html>
