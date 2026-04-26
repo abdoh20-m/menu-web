@@ -8,44 +8,62 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     
     <style>
-        :root { --primary-color: #ffcc00; --bg-color: #121212; --card-bg: #1e1e1e; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: white; margin: 0; padding: 0; padding-bottom: 80px; }
-        .header { background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=500&q=80'); background-size: cover; text-align: center; padding: 30px 10px; }
-        .header h1 { margin: 0; color: var(--primary-color); font-size: 2em; }
-        .table-badge { background: var(--primary-color); color: black; padding: 4px 12px; border-radius: 15px; font-weight: bold; display: inline-block; margin-top: 8px; font-size: 0.8em; }
+        :root { --primary-color: #ff9800; --bg-color: #121212; --card-bg: #333333; --tab-bg: #d1c4e9; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: white; margin: 0; padding-bottom: 100px; }
         
-        .menu-container { padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-        .food-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
-        .food-card:active { transform: scale(0.95); border-color: var(--primary-color); }
-        .food-card img { width: 100%; height: 110px; object-fit: cover; }
-        .food-info { padding: 10px; text-align: center; }
-        .food-info h3 { margin: 0; font-size: 0.95em; color: #fff; }
-        .food-info .price { color: var(--primary-color); font-weight: bold; margin-top: 5px; font-size: 1em; }
+        /* الهيدر */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
+        .header h1 { color: var(--primary-color); font-size: 1.5em; margin: 0; flex-grow: 1; text-align: center; }
         
-        /* شريط تأكيد الطلب السفلي */
-        .order-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #222; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--primary-color); box-shadow: 0 -5px 15px rgba(0,0,0,0.5); z-index: 1000; }
-        .order-btn { background: var(--primary-color); color: black; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 1em; cursor: pointer; }
-        .order-btn:disabled { background: #555; color: #888; }
-        
-        #loading { text-align: center; margin-top: 40px; color: #888; }
+        /* نظام التبويبات العلوي */
+        .tabs-container { display: flex; overflow-x: auto; padding: 10px; gap: 10px; white-space: nowrap; scrollbar-width: none; }
+        .tabs-container::-webkit-scrollbar { display: none; }
+        .tab-btn { background: var(--tab-bg); color: #000; border: none; padding: 12px 25px; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active { background: white; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+
+        /* حاوية الوجبات */
+        .menu-container { padding: 15px; }
+        .food-card { background: var(--card-bg); border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; padding: 15px; position: relative; }
+        .food-details { flex-grow: 1; padding-right: 15px; }
+        .food-details h3 { margin: 0; font-size: 1.2em; }
+        .food-details .price { color: #b39ddb; font-weight: bold; margin-top: 10px; display: block; }
+        .food-img { width: 100px; height: 100px; border-radius: 10px; object-fit: cover; }
+
+        /* أزرار التحكم بالكمية (+ / -) */
+        .controls { display: flex; align-items: center; gap: 10px; margin-top: 15px; }
+        .btn-plus { background: #4caf50; color: white; border: none; width: 30px; height: 30px; border-radius: 5px; font-size: 1.5em; line-height: 1; cursor: pointer; }
+        .btn-minus { background: #ff5722; color: white; border: none; width: 30px; height: 30px; border-radius: 5px; font-size: 1.5em; line-height: 1; cursor: pointer; }
+        .count { font-size: 1.2em; font-weight: bold; min-width: 20px; text-align: center; }
+
+        /* الشريط السفلي */
+        .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-color); padding: 15px; display: flex; gap: 10px; border-top: 1px solid #333; }
+        .btn-confirm { background: var(--primary-color); color: white; border: none; flex: 1; padding: 15px; border-radius: 30px; font-weight: bold; font-size: 1em; cursor: pointer; }
+        .btn-status { background: #4caf50; color: white; border: none; flex: 1; padding: 15px; border-radius: 30px; font-weight: bold; font-size: 1em; cursor: pointer; }
+
+        .category-header { color: var(--primary-color); border-bottom: 1px dashed var(--primary-color); padding: 10px 0; margin: 20px 0 10px; text-align: center; }
     </style>
 </head>
 <body>
 
     <div class="header">
+        <span style="font-size: 1.5em;">🔍</span>
         <h1>Akıllı Menü</h1>
-        <div id="tableText" class="table-badge">طاولة رقم: ..</div>
+        <span style="font-size: 1.5em;">📱</span>
     </div>
 
-    <div id="loading">جاري جلب قائمة الطعام...</div>
-    <div class="menu-container" id="menuGrid"></div>
+    <div class="tabs-container">
+        <button class="tab-btn active" onclick="switchCategory('Yeni & popüler', this)">Yeni & popüler</button>
+        <button class="tab-btn" onclick="switchCategory('Ana Yemek', this)">Ana Yemek</button>
+        <button class="tab-btn" onclick="switchCategory('Tatlılar', this)">Tatlılar</button>
+        <button class="tab-btn" onclick="switchCategory('İçecekler', this)">İçecekler</button>
+    </div>
 
-    <div class="order-bar">
-        <div>
-            <span id="totalItems">0</span> أصناف | 
-            <span id="totalPrice" style="color: var(--primary-color); font-weight: bold;">0 TL</span>
+    <div class="menu-container" id="menuGrid">
         </div>
-        <button id="submitOrder" class="order-btn" disabled onclick="confirmOrder()">تأكيد الطلب</button>
+
+    <div class="footer-bar">
+        <button id="orderBtn" class="btn-confirm" onclick="confirmOrder()">Sipariş Onayla (0 TL)</button>
+        <button class="btn-status">Sipariş Durumu</button>
     </div>
 
     <script>
@@ -56,85 +74,108 @@
             projectId: "akilli-menu",
             storageBucket: "akilli-menu.firebasestorage.app",
             messagingSenderId: "238716948153",
-            appId: "1:238716948153:web:8ee743bbbae57867fa1568",
-            measurementId: "G-S9M9DDXSMV"
+            appId: "1:238716948153:web:8ee743bbbae57867fa1568"
         };
 
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        let currentCart = {}; // { foodId: quantity }
+        let currentCategory = 'Yeni & popüler';
         const tableNum = window.location.pathname.split('/').pop() || "01";
-        document.getElementById('tableText').innerText = "طاولة رقم: " + tableNum;
 
-        let cart = []; // سلة المشتريات
+        // تبديل الأقسام
+        function switchCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            loadMenu();
+        }
 
-        // جلب البيانات من المجلدات كما في جوالك
-        const categories = ["Popüler", "Ana Yemek", "İçecek", "Tatlı", "Yemekler"]; 
-        categories.forEach(cat => {
-            database.ref(cat).on('value', (snapshot) => {
+        function loadMenu() {
+            const menuGrid = document.getElementById('menuGrid');
+            menuGrid.innerHTML = '<p style="text-align:center">جاري التحميل...</p>';
+
+            database.ref(currentCategory).on('value', (snapshot) => {
+                menuGrid.innerHTML = `<div class="category-header">--- ${currentCategory} ---</div>`;
                 if (snapshot.exists()) {
-                    document.getElementById('loading').style.display = 'none';
                     snapshot.forEach((child) => {
                         const food = child.val();
-                        renderFood(food);
+                        const foodId = child.key;
+                        renderFood(food, foodId);
                     });
+                } else {
+                    menuGrid.innerHTML += '<p style="text-align:center">لا توجد وجبات في هذا القسم حالياً</p>';
                 }
             });
-        });
+        }
 
-        function renderFood(food) {
+        function renderFood(food, id) {
             const menuGrid = document.getElementById('menuGrid');
+            const count = currentCart[id] || 0;
             const card = document.createElement('div');
             card.className = 'food-card';
-            card.onclick = () => addToCart(food);
             card.innerHTML = `
-                <img src="${food.imageUrl || 'https://via.placeholder.com/150'}" alt="${food.name}">
-                <div class="food-info">
+                <div class="food-details">
                     <h3>${food.name}</h3>
-                    <div class="price">${food.price} TL</div>
+                    <span class="price">${food.price} TL</span>
+                    <div class="controls">
+                        <button class="btn-plus" onclick="updateItem('${id}', '${food.name}', ${food.price}, 1)">+</button>
+                        <span class="count" id="count-${id}">${count}</span>
+                        <button class="btn-minus" onclick="updateItem('${id}', '${food.name}', ${food.price}, -1)">-</button>
+                    </div>
                 </div>
+                <img src="${food.imageUrl || 'https://via.placeholder.com/100'}" class="food-img">
             `;
             menuGrid.appendChild(card);
         }
 
-        function addToCart(food) {
-            cart.push(food);
-            updateOrderBar();
+        function updateItem(id, name, price, delta) {
+            if (!currentCart[id]) currentCart[id] = { name, price, qty: 0 };
+            currentCart[id].qty += delta;
+            if (currentCart[id].qty < 0) currentCart[id].qty = 0;
+            
+            document.getElementById(`count-${id}`).innerText = currentCart[id].qty;
+            updateFooter();
         }
 
-        function updateOrderBar() {
-            const total = cart.reduce((sum, item) => sum + parseFloat(item.price), 0);
-            document.getElementById('totalItems').innerText = cart.length;
-            document.getElementById('totalPrice').innerText = total + " TL";
-            document.getElementById('submitOrder').disabled = cart.length === 0;
+        function updateFooter() {
+            let total = 0;
+            for (let id in currentCart) {
+                total += currentCart[id].qty * currentCart[id].price;
+            }
+            document.getElementById('orderBtn').innerText = `Sipariş Onayla (${total} TL)`;
         }
 
-        // إرسال الطلب إلى الإدارة (نفس تنسيق الأندرويد)
         function confirmOrder() {
-            if (cart.length === 0) return;
+            let itemsStr = "";
+            let total = 0;
+            for (let id in currentCart) {
+                if (currentCart[id].qty > 0) {
+                    itemsStr += `${currentCart[id].name} x${currentCart[id].qty}, `;
+                    total += currentCart[id].qty * currentCart[id].price;
+                }
+            }
 
-            const total = cart.reduce((sum, item) => sum + parseFloat(item.price), 0);
-            const itemsString = cart.map(i => i.name).join(", "); // دمج أسماء الأصناف في نص واحد
+            if (total === 0) return alert("الرجاء اختيار وجبات أولاً");
 
             const ordersRef = database.ref('Orders');
-            const newOrderRef = ordersRef.push();
-            
-            const orderData = {
-                orderId: newOrderRef.key,
-                tableNumber: "Masa " + tableNum.toString().padStart(2, '0'),
-                items: itemsString,
+            const newOrder = ordersRef.push();
+            newOrder.set({
+                orderId: newOrder.key,
+                tableNumber: "Masa " + tableNum.padStart(2, '0'),
+                items: itemsStr.slice(0, -2),
                 totalPrice: total + " TL",
                 status: "Pending",
-                archived: false,
                 timestamp: Date.now()
-            };
-
-            newOrderRef.set(orderData).then(() => {
-                alert("تم إرسال طلبك بنجاح! سيصلك النادل قريباً.");
-                cart = [];
-                updateOrderBar();
-            }).catch(err => alert("حدث خطأ في الإرسال: " + err));
+            }).then(() => {
+                alert("تم إرسال طلبك! سيصلك النادل قريباً.");
+                location.reload();
+            });
         }
+
+        // تشغيل القسم الأول عند الفتح
+        loadMenu();
     </script>
 </body>
 </html>
