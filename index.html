@@ -17,10 +17,13 @@
         <a href="#" class="btn">تصفح القائمة الآن</a>
     </div>
     <script>
-        // كود ذكي لمعرفة رقم الطاولة من الرابط
-        const path = window.location.pathname;
-        const tableNum = path.split('/').pop() || "غير محددة";
-        document.getElementById('tableText').innerText = "طاولة رقم: " + tableNum;
+      // كود ذكي يقرأ الرقم سواء كان بالمسار /1 أو بعد علامة الاستفهام ?id=1
+const urlParams = new URLSearchParams(window.location.search);
+const idFromQuery = urlParams.get('id');
+const path = window.location.pathname.split('/').pop();
+
+const tableNum = idFromQuery || path || "غير محددة";
+document.getElementById('tableText').innerText = "طاولة رقم: " + tableNum;
     </script>
 </body>
 </html>
