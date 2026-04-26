@@ -11,41 +11,40 @@
         :root { --primary-color: #ff9800; --bg-color: #121212; --card-bg: #333333; --tab-bg: #d1c4e9; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: white; margin: 0; padding-bottom: 100px; overflow-x: hidden; }
         
-        /* الهيدر */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #1a1a1a; position: sticky; top: 0; z-index: 1001; }
+        /* Header Yapısı */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #1a1a1a; position: sticky; top: 0; z-index: 1001; }
         .header h1 { color: var(--primary-color); font-size: 1.4em; margin: 0; flex-grow: 1; text-align: center; }
         #searchBar { display: none; flex-grow: 1; margin: 0 10px; padding: 8px 15px; border-radius: 20px; border: none; outline: none; background: #444; color: white; }
         
-        /* تنسيق الشعار */
-        .logo-img { width: 40px; height: 40px; object-fit: contain; border-radius: 5px; }
+        /* Logo Tasarımı */
+        .logo-img { width: 45px; height: 45px; object-fit: contain; border-radius: 5px; }
 
-        /* التبويبات */
+        /* Kategoriler (Tabs) */
         .tabs-container { display: flex; overflow-x: auto; padding: 15px 10px; gap: 10px; position: sticky; top: 58px; background: #121212; z-index: 1000; scrollbar-width: none; }
         .tabs-container::-webkit-scrollbar { display: none; }
         .tab-btn { background: var(--tab-bg); color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; transition: 0.3s; }
         .tab-btn.active { background: white; border: 2px solid var(--primary-color); transform: scale(1.05); }
 
-        /* العناوين الفرعية الوسطى */
+        /* Alt Başlıklar (Yeni - Popüler) */
         .category-divider { color: #ff9800; text-align: center; font-weight: bold; margin: 20px 0 15px 0; font-size: 1.1em; letter-spacing: 1px; display: block; width: 100%; }
 
-        /* قائمة الطعام */
+        /* Yemek Kartları */
         .menu-container { padding: 10px 15px; }
         .food-card { background: var(--card-bg); border-radius: 15px; margin-bottom: 12px; display: flex; align-items: center; padding: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        .food-details { flex-grow: 1; text-align: left; } /* التغيير لليسار بما أن اللغة تركية */
+        .food-details { flex-grow: 1; text-align: left; } 
         .food-details h3 { margin: 0; font-size: 1.1em; color: #eee; }
         .price-text { color: #b39ddb; font-weight: bold; margin: 8px 0; display: block; font-size: 1.1em; }
         .food-img { width: 85px; height: 85px; border-radius: 12px; object-fit: cover; margin-left: 10px; background: #444; }
 
-        /* التحكم */
+        /* Miktar Kontrolleri */
         .controls { display: flex; align-items: center; gap: 12px; }
-        .btn-plus { background: #4caf50; color: white; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.2em; }
-        .btn-minus { background: #ff5722; color: white; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.2em; }
-        .qty-label { font-weight: bold; min-width: 20px; text-align: center; font-size: 1.1em; }
+        .btn-plus { background: #4caf50; color: white; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-minus { background: #ff5722; color: white; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .qty-label { font-weight: bold; min-width: 20px; text-align: center; }
 
-        /* الفوتر */
+        /* Alt Bar */
         .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; padding: 15px; display: flex; gap: 10px; box-shadow: 0 -2px 15px rgba(0,0,0,0.5); z-index: 1002; }
-        .btn-footer { flex: 1; padding: 15px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; font-size: 1em; transition: 0.2s; }
-        .btn-footer:active { transform: scale(0.98); }
+        .btn-footer { flex: 1; padding: 15px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
         .btn-orange { background: var(--primary-color); color: white; }
         .btn-green { background: #4caf50; color: white; }
     </style>
@@ -56,7 +55,7 @@
         <span onclick="toggleSearch()" style="cursor:pointer; font-size: 1.5em;">🔍</span>
         <input type="text" id="searchBar" placeholder="Yemek ara..." onkeyup="searchFood()">
         <h1 id="brandName">Akıllı Menü</h1>
-        <img src="https://firebasestorage.googleapis.com/v0/b/akilli-menu.firebasestorage.app/o/logo.png?alt=media" alt="Logo" class="logo-img">
+        <img src="logo.png" alt="Logo" class="logo-img">
     </div>
 
     <div class="tabs-container">
@@ -66,11 +65,11 @@
         <button class="tab-btn" onclick="switchCategory('İçecekler', this)">İçecekler</button>
     </div>
 
-    <div class="menu-container" id="menuGrid"></div>
+    <div id="menuGrid" class="menu-container"></div>
 
     <div class="footer-bar">
         <button id="orderBtn" class="btn-footer btn-orange" onclick="confirmOrder()">Sipariş Onayla (0 TL)</button>
-        <button class="btn-footer btn-green" onclick="alert('Sipariş durumunuz hazırlanıyor...')">Sipariş Durumu</button>
+        <button class="btn-footer btn-green" onclick="alert('Sipariş durumunuz güncelleniyor...')">Sipariş Durumu</button>
     </div>
 
     <script>
@@ -108,8 +107,7 @@
 
         function searchFood() {
             const term = document.getElementById('searchBar').value.toLowerCase();
-            const cards = document.querySelectorAll('.food-card');
-            cards.forEach(card => {
+            document.querySelectorAll('.food-card').forEach(card => {
                 const name = card.querySelector('h3').innerText.toLowerCase();
                 card.style.display = name.includes(term) ? 'flex' : 'none';
             });
@@ -124,7 +122,7 @@
 
         function loadMenu() {
             const menuGrid = document.getElementById('menuGrid');
-            menuGrid.innerHTML = '<p style="text-align:center; padding:20px; color:#888;">Menü yükleniyor...</p>';
+            menuGrid.innerHTML = '<p style="text-align:center; padding:20px;">Menü yükleniyor...</p>';
 
             database.ref(currentCategory).on('value', (snapshot) => {
                 menuGrid.innerHTML = '';
@@ -158,7 +156,7 @@
                         `;
                     });
                 } else {
-                    menuGrid.innerHTML = '<p style="text-align:center; padding:20px; color:#888;">Bu bölüm şimdilik boş.</p>';
+                    menuGrid.innerHTML = '<p style="text-align:center; padding:20px;">Bölüm boş.</p>';
                 }
             });
         }
@@ -167,17 +165,13 @@
             if (!currentCart[id]) currentCart[id] = { name, price, qty: 0 };
             currentCart[id].qty += delta;
             if (currentCart[id].qty < 0) currentCart[id].qty = 0;
-            
-            const label = document.getElementById(`qty-${id}`);
-            if(label) label.innerText = currentCart[id].qty;
+            document.getElementById(`qty-${id}`).innerText = currentCart[id].qty;
             updateFooter();
         }
 
         function updateFooter() {
             let total = 0;
-            for (let id in currentCart) {
-                total += currentCart[id].qty * currentCart[id].price;
-            }
+            for (let id in currentCart) total += currentCart[id].qty * currentCart[id].price;
             document.getElementById('orderBtn').innerText = `Sipariş Onayla (${total} TL)`;
         }
 
@@ -190,25 +184,22 @@
                     total += currentCart[id].qty * currentCart[id].price;
                 }
             }
-            if (total === 0) return alert("Lütfen önce yemeklerinizi seçin!");
+            if (total === 0) return alert("Lütfen yemek seçiniz!");
 
-            const newOrder = database.ref('Orders').push();
-            newOrder.set({
-                orderId: newOrder.key,
-                tableNumber: "Masa " + tableNum.toString().padStart(2, '0'),
+            database.ref('Orders').push().set({
+                orderId: Date.now().toString(),
+                tableNumber: "Masa " + tableNum.padStart(2, '0'),
                 items: itemsStr.slice(0, -2),
                 totalPrice: total + " TL",
                 status: "Pending",
-                archived: false,
                 timestamp: Date.now()
             }).then(() => {
-                alert("Siparişiniz başarıyla alındı!");
+                alert("Siparişiniz alındı!");
                 currentCart = {};
                 loadMenu();
                 updateFooter();
-            }).catch(err => alert("Hata oluştu: " + err));
+            });
         }
-
         loadMenu();
     </script>
 </body>
