@@ -53,7 +53,7 @@
         document.getElementById('tableText').innerText = "طاولة رقم: " + tableNum;
 
         // جلب البيانات من المجلد 'foods' (تأكد أن هذا هو الاسم في قاعدة بياناتك)
-        const menuRef = database.ref('foods'); 
+        const menuRef = database.ref('Yemekler'); 
         menuRef.on('value', (snapshot) => {
             const menuGrid = document.getElementById('menuGrid');
             const loading = document.getElementById('loading');
