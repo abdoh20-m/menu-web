@@ -3,52 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akıllı Menü - القائمة</title>
+    <title>Akıllı Menü</title>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     
     <style>
         :root { --primary-color: #ff9800; --bg-color: #121212; --card-bg: #333333; --tab-bg: #d1c4e9; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: white; margin: 0; padding-bottom: 100px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: white; margin: 0; padding-bottom: 100px; overflow-x: hidden; }
         
-        /* الهيدر */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
-        .header h1 { color: var(--primary-color); font-size: 1.5em; margin: 0; flex-grow: 1; text-align: center; }
+        /* الهيدر مع شريط البحث */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #1a1a1a; position: sticky; top: 0; z-index: 1001; }
+        .header h1 { color: var(--primary-color); font-size: 1.4em; margin: 0; }
+        #searchBar { display: none; flex-grow: 1; margin: 0 10; padding: 8px; border-radius: 20px; border: none; outline: none; }
         
-        /* نظام التبويبات العلوي */
-        .tabs-container { display: flex; overflow-x: auto; padding: 10px; gap: 10px; white-space: nowrap; scrollbar-width: none; }
-        .tabs-container::-webkit-scrollbar { display: none; }
-        .tab-btn { background: var(--tab-bg); color: #000; border: none; padding: 12px 25px; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .tab-btn.active { background: white; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        /* التبويبات */
+        .tabs-container { display: flex; overflow-x: auto; padding: 15px 10px; gap: 10px; sticky: top; top: 60px; background: #121212; z-index: 1000; }
+        .tab-btn { background: var(--tab-bg); color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+        .tab-btn.active { background: white; border: 2px solid var(--primary-color); }
 
-        /* حاوية الوجبات */
-        .menu-container { padding: 15px; }
-        .food-card { background: var(--card-bg); border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; padding: 15px; position: relative; }
-        .food-details { flex-grow: 1; padding-right: 15px; }
-        .food-details h3 { margin: 0; font-size: 1.2em; }
-        .food-details .price { color: #b39ddb; font-weight: bold; margin-top: 10px; display: block; }
-        .food-img { width: 100px; height: 100px; border-radius: 10px; object-fit: cover; }
+        /* قائمة الطعام */
+        .menu-container { padding: 10px 15px; }
+        .food-card { background: var(--card-bg); border-radius: 15px; margin-bottom: 12px; display: flex; align-items: center; padding: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .food-details { flex-grow: 1; }
+        .food-details h3 { margin: 0; font-size: 1.1em; color: #eee; }
+        .price-text { color: #b39ddb; font-weight: bold; margin: 8px 0; display: block; }
+        .food-img { width: 85px; height: 85px; border-radius: 12px; object-fit: cover; margin-right: 10px; }
 
-        /* أزرار التحكم بالكمية (+ / -) */
-        .controls { display: flex; align-items: center; gap: 10px; margin-top: 15px; }
-        .btn-plus { background: #4caf50; color: white; border: none; width: 30px; height: 30px; border-radius: 5px; font-size: 1.5em; line-height: 1; cursor: pointer; }
-        .btn-minus { background: #ff5722; color: white; border: none; width: 30px; height: 30px; border-radius: 5px; font-size: 1.5em; line-height: 1; cursor: pointer; }
-        .count { font-size: 1.2em; font-weight: bold; min-width: 20px; text-align: center; }
+        /* التحكم */
+        .controls { display: flex; align-items: center; gap: 12px; }
+        .btn-plus { background: #4caf50; color: white; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-minus { background: #ff5722; color: white; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
-        /* الشريط السفلي */
-        .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-color); padding: 15px; display: flex; gap: 10px; border-top: 1px solid #333; }
-        .btn-confirm { background: var(--primary-color); color: white; border: none; flex: 1; padding: 15px; border-radius: 30px; font-weight: bold; font-size: 1em; cursor: pointer; }
-        .btn-status { background: #4caf50; color: white; border: none; flex: 1; padding: 15px; border-radius: 30px; font-weight: bold; font-size: 1em; cursor: pointer; }
-
-        .category-header { color: var(--primary-color); border-bottom: 1px dashed var(--primary-color); padding: 10px 0; margin: 20px 0 10px; text-align: center; }
+        /* الفوتر */
+        .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; padding: 12px; display: flex; gap: 10px; box-shadow: 0 -2px 10px rgba(0,0,0,0.5); }
+        .btn-footer { flex: 1; padding: 14px; border-radius: 25px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-orange { background: var(--primary-color); color: white; }
+        .btn-green { background: #4caf50; color: white; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <span style="font-size: 1.5em;">🔍</span>
-        <h1>Akıllı Menü</h1>
-        <span style="font-size: 1.5em;">📱</span>
+        <span onclick="toggleSearch()" style="cursor:pointer; font-size: 1.3em;">🔍</span>
+        <input type="text" id="searchBar" placeholder="ابحث عن وجبة..." onkeyup="searchFood()">
+        <h1 id="brandName">Akıllı Menü</h1>
+        <span style="font-size: 1.3em;">📱</span>
     </div>
 
     <div class="tabs-container">
@@ -58,12 +57,11 @@
         <button class="tab-btn" onclick="switchCategory('İçecekler', this)">İçecekler</button>
     </div>
 
-    <div class="menu-container" id="menuGrid">
-        </div>
+    <div class="menu-container" id="menuGrid"></div>
 
     <div class="footer-bar">
-        <button id="orderBtn" class="btn-confirm" onclick="confirmOrder()">Sipariş Onayla (0 TL)</button>
-        <button class="btn-status">Sipariş Durumu</button>
+        <button id="orderBtn" class="btn-footer btn-orange" onclick="confirmOrder()">Sipariş Onayla (0 TL)</button>
+        <button class="btn-footer btn-green">Sipariş Durumu</button>
     </div>
 
     <script>
@@ -80,11 +78,33 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        let currentCart = {}; // { foodId: quantity }
+        let currentCart = {};
         let currentCategory = 'Yeni & popüler';
         const tableNum = window.location.pathname.split('/').pop() || "01";
 
-        // تبديل الأقسام
+        // وظيفة البحث
+        function toggleSearch() {
+            const bar = document.getElementById('searchBar');
+            const name = document.getElementById('brandName');
+            if (bar.style.display === 'block') {
+                bar.style.display = 'none';
+                name.style.display = 'block';
+            } else {
+                bar.style.display = 'block';
+                name.style.display = 'none';
+                bar.focus();
+            }
+        }
+
+        function searchFood() {
+            const term = document.getElementById('searchBar').value.toLowerCase();
+            const cards = document.querySelectorAll('.food-card');
+            cards.forEach(card => {
+                const name = card.querySelector('h3').innerText.toLowerCase();
+                card.style.display = name.includes(term) ? 'flex' : 'none';
+            });
+        }
+
         function switchCategory(cat, btn) {
             currentCategory = cat;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -94,40 +114,35 @@
 
         function loadMenu() {
             const menuGrid = document.getElementById('menuGrid');
-            menuGrid.innerHTML = '<p style="text-align:center">جاري التحميل...</p>';
+            menuGrid.innerHTML = '<p style="text-align:center; padding:20px;">جاري تحميل القائمة...</p>';
 
             database.ref(currentCategory).on('value', (snapshot) => {
-                menuGrid.innerHTML = `<div class="category-header">--- ${currentCategory} ---</div>`;
+                menuGrid.innerHTML = '';
                 if (snapshot.exists()) {
                     snapshot.forEach((child) => {
                         const food = child.val();
-                        const foodId = child.key;
-                        renderFood(food, foodId);
+                        const id = child.key;
+                        const qty = currentCart[id] ? currentCart[id].qty : 0;
+                        
+                        menuGrid.innerHTML += `
+                            <div class="food-card">
+                                <div class="food-details">
+                                    <h3>${food.name}</h3>
+                                    <span class="price-text">${food.price} TL</span>
+                                    <div class="controls">
+                                        <button class="btn-plus" onclick="updateItem('${id}', '${food.name}', ${food.price}, 1)">+</button>
+                                        <span id="qty-${id}">${qty}</span>
+                                        <button class="btn-minus" onclick="updateItem('${id}', '${food.name}', ${food.price}, -1)">-</button>
+                                    </div>
+                                </div>
+                                <img src="${food.imageUrl || 'https://via.placeholder.com/100'}" class="food-img">
+                            </div>
+                        `;
                     });
                 } else {
-                    menuGrid.innerHTML += '<p style="text-align:center">لا توجد وجبات في هذا القسم حالياً</p>';
+                    menuGrid.innerHTML = '<p style="text-align:center; padding:20px;">هذا القسم فارغ حالياً.</p>';
                 }
             });
-        }
-
-        function renderFood(food, id) {
-            const menuGrid = document.getElementById('menuGrid');
-            const count = currentCart[id] || 0;
-            const card = document.createElement('div');
-            card.className = 'food-card';
-            card.innerHTML = `
-                <div class="food-details">
-                    <h3>${food.name}</h3>
-                    <span class="price">${food.price} TL</span>
-                    <div class="controls">
-                        <button class="btn-plus" onclick="updateItem('${id}', '${food.name}', ${food.price}, 1)">+</button>
-                        <span class="count" id="count-${id}">${count}</span>
-                        <button class="btn-minus" onclick="updateItem('${id}', '${food.name}', ${food.price}, -1)">-</button>
-                    </div>
-                </div>
-                <img src="${food.imageUrl || 'https://via.placeholder.com/100'}" class="food-img">
-            `;
-            menuGrid.appendChild(card);
         }
 
         function updateItem(id, name, price, delta) {
@@ -135,7 +150,7 @@
             currentCart[id].qty += delta;
             if (currentCart[id].qty < 0) currentCart[id].qty = 0;
             
-            document.getElementById(`count-${id}`).innerText = currentCart[id].qty;
+            document.getElementById(`qty-${id}`).innerText = currentCart[id].qty;
             updateFooter();
         }
 
@@ -156,11 +171,9 @@
                     total += currentCart[id].qty * currentCart[id].price;
                 }
             }
-
             if (total === 0) return alert("الرجاء اختيار وجبات أولاً");
 
-            const ordersRef = database.ref('Orders');
-            const newOrder = ordersRef.push();
+            const newOrder = database.ref('Orders').push();
             newOrder.set({
                 orderId: newOrder.key,
                 tableNumber: "Masa " + tableNum.padStart(2, '0'),
@@ -168,13 +181,9 @@
                 totalPrice: total + " TL",
                 status: "Pending",
                 timestamp: Date.now()
-            }).then(() => {
-                alert("تم إرسال طلبك! سيصلك النادل قريباً.");
-                location.reload();
-            });
+            }).then(() => alert("تم إرسال الطلب بنجاح!"));
         }
 
-        // تشغيل القسم الأول عند الفتح
         loadMenu();
     </script>
 </body>
