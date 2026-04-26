@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.example.akillimenu",
+    "sha256_cert_fingerprints": ["F5:70:2E:AD:79:CD:B9:C5:39:9E:05:C3:CF:DF:38:88:16:5D:D5:E4:C4:79:FB:98:31:73:99:65:FC:BC:B9:1F"]
+  }
+}]
