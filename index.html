@@ -3,52 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akıllı Menü - القائمة</title>
+    <title>Akıllı Menü - القائمة الحقيقية</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    
     <style>
-        body { font-family: sans-serif; background-color: #121212; color: white; margin: 0; padding: 20px; }
-        .header { text-align: center; padding: 20px; border-bottom: 1px solid #333; }
-        .table-info { color: #aaa; font-size: 0.9em; }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .menu-item { background: #1e1e1e; border-radius: 12px; padding: 10px; text-align: center; }
-        .menu-item img { width: 100%; border-radius: 8px; height: 100px; object-fit: cover; }
-        .menu-item h3 { font-size: 1em; margin: 10px 0 5px; }
-        .price { color: #2196F3; font-weight: bold; }
+        :root { --primary-color: #ffcc00; --bg-color: #121212; --card-bg: #1e1e1e; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: white; margin: 0; padding: 0; }
+        .header { background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=500&q=80'); background-size: cover; text-align: center; padding: 40px 20px; }
+        .header h1 { margin: 0; color: var(--primary-color); font-size: 2.5em; }
+        .table-badge { background: var(--primary-color); color: black; padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 10px; }
+        .menu-container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+        .food-card { background: var(--card-bg); border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: 0.3s; }
+        .food-card:hover { transform: translateY(-5px); }
+        .food-card img { width: 100%; height: 120px; object-fit: cover; }
+        .food-info { padding: 12px; text-align: center; }
+        .food-info h3 { margin: 0; font-size: 1.1em; }
+        .food-info .price { color: var(--primary-color); font-weight: bold; margin-top: 8px; font-size: 1.2em; }
+        #loading { text-align: center; margin-top: 50px; font-size: 1.2em; color: #888; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>Akıllı Menü</h1>
-        <div id="tableText" class="table-info">طاولة رقم: جاري التحميل...</div>
+        <div id="tableText" class="table-badge">طاولة رقم: ..</div>
     </div>
 
-    <div class="menu-grid" id="menuContainer">
-        </div>
+    <div id="loading">جاري جلب القائمة الشهية...</div>
+    <div class="menu-container" id="menuGrid"></div>
 
     <script>
-        // 1. تحديد رقم الطاولة من الرابط
-        const path = window.location.pathname.split('/').pop();
-        document.getElementById('tableText').innerText = "طاولة رقم: " + (path || "عامة");
+        // 1. إعدادات Firebase الخاصة بك (انسخها من Firebase Console)
+        const firebaseConfig = {
+            apiKey: "AIzaSy...",
+            authDomain: "your-project.firebaseapp.com",
+            databaseURL: "https://your-project-default-rtdb.firebaseio.com",
+            projectId: "your-project",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "...",
+            appId: "..."
+        };
 
-        // 2. قائمة الطعام (يمكنك إضافة أصنافك الحقيقية هنا)
-        const myMenu = [
-            { name: "شاورما دجاج", price: "15 TL", img: "https://via.placeholder.com/150" },
-            { name: "بيتزا خضار", price: "45 TL", img: "https://via.placeholder.com/150" },
-            { name: "كبة مشوية", price: "30 TL", img: "https://via.placeholder.com/150" },
-            { name: "عصير برتقال", price: "10 TL", img: "https://via.placeholder.com/150" }
-        ];
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
-        const container = document.getElementById('menuContainer');
-        
-        // عرض القائمة تلقائياً
-        myMenu.forEach(item => {
-            container.innerHTML += `
-                <div class="menu-item">
-                    <img src="${item.img}" alt="${item.name}">
-                    <h3>${item.name}</h3>
-                    <div class="price">${item.price}</div>
-                </div>
-            `;
+        // 2. قراءة رقم الطاولة من الرابط
+        const tableNum = window.location.pathname.split('/').pop() || "عامة";
+        document.getElementById('tableText').innerText = "طاولة رقم: " + tableNum;
+
+        // 3. جلب البيانات من Firebase
+        const menuRef = database.ref('foods'); // تأكد أن هذا هو اسم المجلد في قاعدة بياناتك
+        menuRef.on('value', (snapshot) => {
+            const menuGrid = document.getElementById('menuGrid');
+            const loading = document.getElementById('loading');
+            menuGrid.innerHTML = '';
+            loading.style.display = 'none';
+
+            snapshot.forEach((childSnapshot) => {
+                const food = childSnapshot.val();
+                menuGrid.innerHTML += `
+                    <div class="food-card">
+                        <img src="${food.imageUrl || 'https://via.placeholder.com/150'}" alt="${food.name}">
+                        <div class="food-info">
+                            <h3>${food.name}</h3>
+                            <div class="price">${food.price} TL</div>
+                        </div>
+                    </div>
+                `;
+            });
         });
     </script>
 </body>
