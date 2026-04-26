@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akıllı Menü</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #121212; color: white; padding: 50px; }
+        .card { border: 1px solid #333; padding: 20px; border-radius: 20px; background: #1e1e1e; }
+        .btn { display: block; margin: 20px auto; padding: 15px; background: #007bff; color: white; text-decoration: none; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Akıllı Menü</h1>
+        <h2 id="tableText">جاري فحص الطاولة...</h2>
+        <a href="#" class="btn">تصفح القائمة الآن</a>
+    </div>
+    <script>
+        // كود ذكي لمعرفة رقم الطاولة من الرابط
+        const path = window.location.pathname;
+        const tableNum = path.split('/').pop() || "غير محددة";
+        document.getElementById('tableText').innerText = "طاولة رقم: " + tableNum;
+    </script>
+</body>
+</html>
