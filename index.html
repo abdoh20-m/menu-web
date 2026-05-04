@@ -11,45 +11,42 @@
         :root { --primary-color: #ff9800; --bg-color: #121212; --card-bg: #333333; --tab-bg: #d1c4e9; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: white; margin: 0; padding-bottom: 100px; overflow-x: hidden; }
         
-        /* Header Yapısı */
+        /* شريط حالة الطلب الجديد */
+        #statusContainer { display: none; background: #1a1a1a; padding: 15px; border-bottom: 2px solid var(--primary-color); text-align: center; }
+        #countdownTimer { color: #4CAF50; font-weight: bold; font-size: 22px; display: block; margin-top: 5px; }
+
         .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #1a1a1a; position: sticky; top: 0; z-index: 1001; }
         .header h1 { color: var(--primary-color); font-size: 1.4em; margin: 0; flex-grow: 1; text-align: center; }
         #searchBar { display: none; flex-grow: 1; margin: 0 10px; padding: 8px 15px; border-radius: 20px; border: none; outline: none; background: #444; color: white; }
-        
-        /* Logo Tasarımı */
         .logo-img { width: 45px; height: 45px; object-fit: contain; border-radius: 5px; }
 
-        /* Kategoriler (Tabs) */
+        /* نافذة وصف الوجبة (Modal) */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
+        .modal-content { background: #222; margin: 15% auto; padding: 20px; width: 80%; border-radius: 15px; text-align: center; border: 1px solid var(--primary-color); }
+        .modal-content img { width: 100%; border-radius: 10px; margin-bottom: 10px; }
+
         .tabs-container { display: flex; overflow-x: auto; padding: 15px 10px; gap: 10px; position: sticky; top: 58px; background: #121212; z-index: 1000; scrollbar-width: none; }
-        .tabs-container::-webkit-scrollbar { display: none; }
-        .tab-btn { background: var(--tab-bg); color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; transition: 0.3s; }
-        .tab-btn.active { background: white; border: 2px solid var(--primary-color); transform: scale(1.05); }
+        .tab-btn { background: var(--tab-bg); color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+        .tab-btn.active { background: white; border: 2px solid var(--primary-color); }
 
-        /* Alt Başlıklar (Yeni - Popüler) */
-        .category-divider { color: #ff9800; text-align: center; font-weight: bold; margin: 20px 0 15px 0; font-size: 1.1em; letter-spacing: 1px; display: block; width: 100%; }
-
-        /* Yemek Kartları */
         .menu-container { padding: 10px 15px; }
-        .food-card { background: var(--card-bg); border-radius: 15px; margin-bottom: 12px; display: flex; align-items: center; padding: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .food-card { background: var(--card-bg); border-radius: 15px; margin-bottom: 12px; display: flex; align-items: center; padding: 12px; }
         .food-details { flex-grow: 1; text-align: left; } 
-        .food-details h3 { margin: 0; font-size: 1.1em; color: #eee; }
-        .price-text { color: #b39ddb; font-weight: bold; margin: 8px 0; display: block; font-size: 1.1em; }
-        .food-img { width: 85px; height: 85px; border-radius: 12px; object-fit: cover; margin-left: 10px; background: #444; }
+        .food-img { width: 85px; height: 85px; border-radius: 12px; object-fit: cover; margin-left: 10px; cursor: pointer; }
 
-        /* Miktar Kontrolleri */
-        .controls { display: flex; align-items: center; gap: 12px; }
-        .btn-plus { background: #4caf50; color: white; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .btn-minus { background: #ff5722; color: white; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .qty-label { font-weight: bold; min-width: 20px; text-align: center; }
-
-        /* Alt Bar */
-        .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; padding: 15px; display: flex; gap: 10px; box-shadow: 0 -2px 15px rgba(0,0,0,0.5); z-index: 1002; }
-        .btn-footer { flex: 1; padding: 15px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
+        .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; padding: 15px; display: flex; gap: 10px; z-index: 1002; }
+        .btn-footer { flex: 1; padding: 15px; border-radius: 30px; border: none; font-weight: bold; }
         .btn-orange { background: var(--primary-color); color: white; }
         .btn-green { background: #4caf50; color: white; }
     </style>
 </head>
 <body>
+
+    <!-- شريط تتبع الطلب النشط -->
+    <div id="statusContainer">
+        <div id="orderStatus" style="color: var(--primary-color); font-weight: bold;">Sipariş Hazırlanıyor...</div>
+        <div id="countdownTimer">00:00</div>
+    </div>
 
     <div class="header">
         <span onclick="toggleSearch()" style="cursor:pointer; font-size: 1.5em;">🔍</span>
@@ -67,9 +64,19 @@
 
     <div id="menuGrid" class="menu-container"></div>
 
+    <!-- نافذة الوصف (Modal) -->
+    <div id="dishModal" class="modal">
+        <div class="modal-content">
+            <img id="modalImg" src="">
+            <h2 id="modalTitle" style="color: var(--primary-color);"></h2>
+            <p id="modalDesc" style="color: #ccc;"></p>
+            <button class="btn-footer btn-orange" onclick="closeModal()">Kapat</button>
+        </div>
+    </div>
+
     <div class="footer-bar">
         <button id="orderBtn" class="btn-footer btn-orange" onclick="confirmOrder()">Sipariş Onayla (0 TL)</button>
-        <button class="btn-footer btn-green" onclick="alert('Sipariş durumunuz güncelleniyor...')">Sipariş Durumu</button>
+        <button class="btn-footer btn-green" onclick="scrollToStatus()">Sipariş Durumu</button>
     </div>
 
     <script>
@@ -89,28 +96,13 @@
         let currentCart = {};
         let currentCategory = 'Yeni & popüler';
         const tableNum = window.location.pathname.split('/').pop() || "01";
+        let timerInterval;
 
         function toggleSearch() {
             const bar = document.getElementById('searchBar');
             const name = document.getElementById('brandName');
-            if (bar.style.display === 'block') {
-                bar.style.display = 'none';
-                name.style.display = 'block';
-                bar.value = "";
-                searchFood();
-            } else {
-                bar.style.display = 'block';
-                name.style.display = 'none';
-                bar.focus();
-            }
-        }
-
-        function searchFood() {
-            const term = document.getElementById('searchBar').value.toLowerCase();
-            document.querySelectorAll('.food-card').forEach(card => {
-                const name = card.querySelector('h3').innerText.toLowerCase();
-                card.style.display = name.includes(term) ? 'flex' : 'none';
-            });
+            bar.style.display = bar.style.display === 'block' ? 'none' : 'block';
+            name.style.display = bar.style.display === 'block' ? 'none' : 'block';
         }
 
         function switchCategory(cat, btn) {
@@ -122,44 +114,37 @@
 
         function loadMenu() {
             const menuGrid = document.getElementById('menuGrid');
-            menuGrid.innerHTML = '<p style="text-align:center; padding:20px;">Menü yükleniyor...</p>';
-
             database.ref(currentCategory).on('value', (snapshot) => {
                 menuGrid.innerHTML = '';
-                if (snapshot.exists()) {
-                    if (currentCategory === 'Yeni & popüler') {
-                        menuGrid.innerHTML += '<div class="category-divider">--- Yeni ---</div>';
-                    }
-
-                    snapshot.forEach((child) => {
-                        const food = child.val();
-                        const id = child.key;
-                        const qty = currentCart[id] ? currentCart[id].qty : 0;
-                        
-                        if (currentCategory === 'Yeni & popüler' && food.name === 'Döner') {
-                            menuGrid.innerHTML += '<div class="category-divider">--- Popüler ---</div>';
-                        }
-
-                        menuGrid.innerHTML += `
-                            <div class="food-card">
-                                <img src="${food.imageUrl || 'https://via.placeholder.com/100'}" class="food-img">
-                                <div class="food-details">
-                                    <h3>${food.name}</h3>
-                                    <span class="price-text">${food.price} TL</span>
-                                    <div class="controls">
-                                        <button class="btn-minus" onclick="updateItem('${id}', '${food.name}', ${food.price}, -1)">-</button>
-                                        <span class="qty-label" id="qty-${id}">${qty}</span>
-                                        <button class="btn-plus" onclick="updateItem('${id}', '${food.name}', ${food.price}, 1)">+</button>
-                                    </div>
+                snapshot.forEach((child) => {
+                    const food = child.val();
+                    const id = child.key;
+                    const qty = currentCart[id] ? currentCart[id].qty : 0;
+                    menuGrid.innerHTML += `
+                        <div class="food-card">
+                            <img src="${food.imageUrl}" class="food-img" onclick="openModal('${food.name}', '${food.imageUrl}', '${food.description || 'Bu yemek için açıklama bulunmamaktadır.'}')">
+                            <div class="food-details">
+                                <h3>${food.name}</h3>
+                                <span class="price-text">${food.price} TL</span>
+                                <div class="controls">
+                                    <button onclick="updateItem('${id}', '${food.name}', ${food.price}, -1)">-</button>
+                                    <span id="qty-${id}">${qty}</span>
+                                    <button onclick="updateItem('${id}', '${food.name}', ${food.price}, 1)">+</button>
                                 </div>
                             </div>
-                        `;
-                    });
-                } else {
-                    menuGrid.innerHTML = '<p style="text-align:center; padding:20px;">Bölüm boş.</p>';
-                }
+                        </div>`;
+                });
             });
         }
+
+        function openModal(name, img, desc) {
+            document.getElementById('modalTitle').innerText = name;
+            document.getElementById('modalImg').src = img;
+            document.getElementById('modalDesc').innerText = desc;
+            document.getElementById('dishModal').style.display = 'block';
+        }
+
+        function closeModal() { document.getElementById('dishModal').style.display = 'none'; }
 
         function updateItem(id, name, price, delta) {
             if (!currentCart[id]) currentCart[id] = { name, price, qty: 0 };
@@ -176,8 +161,7 @@
         }
 
         function confirmOrder() {
-            let itemsStr = "";
-            let total = 0;
+            let itemsStr = ""; let total = 0;
             for (let id in currentCart) {
                 if (currentCart[id].qty > 0) {
                     itemsStr += `${currentCart[id].name} x${currentCart[id].qty}, `;
@@ -186,20 +170,58 @@
             }
             if (total === 0) return alert("Lütfen yemek seçiniz!");
 
-            database.ref('Orders').push().set({
-                orderId: Date.now().toString(),
+            const newOrderRef = database.ref('Orders').push();
+            const orderId = newOrderRef.key;
+            
+            newOrderRef.set({
+                orderId: orderId,
                 tableNumber: "Masa " + tableNum.padStart(2, '0'),
                 items: itemsStr.slice(0, -2),
                 totalPrice: total + " TL",
-                status: "Pending",
+                status: "Sipariş Alındı 📩",
+                estimatedTime: 0,
+                isArchived: false,
                 timestamp: Date.now()
             }).then(() => {
                 alert("Siparişiniz alındı!");
-                currentCart = {};
-                loadMenu();
-                updateFooter();
+                localStorage.setItem('activeOrderId', orderId); // حفظ معرف الطلب للتتبع
+                trackOrder(orderId);
+                currentCart = {}; loadMenu(); updateFooter();
             });
         }
+
+        function trackOrder(id) {
+            database.ref('Orders/' + id).on('value', (snapshot) => {
+                const order = snapshot.val();
+                if (order && !order.isArchived) {
+                    document.getElementById('statusContainer').style.display = 'block';
+                    document.getElementById('orderStatus').innerText = order.status;
+                    if (order.estimatedTime > 0) startTimer(order.estimatedTime);
+                } else {
+                    document.getElementById('statusContainer').style.display = 'none';
+                    clearInterval(timerInterval);
+                }
+            });
+        }
+
+        function startTimer(minutes) {
+            clearInterval(timerInterval);
+            let time = minutes * 60;
+            timerInterval = setInterval(() => {
+                let m = Math.floor(time / 60);
+                let s = time % 60;
+                document.getElementById('countdownTimer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+                if (time <= 0) clearInterval(timerInterval);
+                time--;
+            }, 1000);
+        }
+
+        function scrollToStatus() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+        // استعادة التتبع عند تحديث الصفحة
+        const savedId = localStorage.getItem('activeOrderId');
+        if (savedId) trackOrder(savedId);
+
         loadMenu();
     </script>
 </body>
