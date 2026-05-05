@@ -11,7 +11,6 @@
         :root { --primary-color: #ff9800; --bg-color: #121212; --card-bg: #333333; --tab-bg: #d1c4e9; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: white; margin: 0; padding-bottom: 100px; overflow-x: hidden; }
         
-        /* شريط حالة الطلب الجديد */
         #statusContainer { display: none; background: #1a1a1a; padding: 15px; border-bottom: 2px solid var(--primary-color); text-align: center; }
         #countdownTimer { color: #4CAF50; font-weight: bold; font-size: 22px; display: block; margin-top: 5px; }
 
@@ -20,7 +19,6 @@
         #searchBar { display: none; flex-grow: 1; margin: 0 10px; padding: 8px 15px; border-radius: 20px; border: none; outline: none; background: #444; color: white; }
         .logo-img { width: 45px; height: 45px; object-fit: contain; border-radius: 5px; }
 
-        /* نافذة وصف الوجبة (Modal) */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
         .modal-content { background: #222; margin: 15% auto; padding: 20px; width: 80%; border-radius: 15px; text-align: center; border: 1px solid var(--primary-color); }
         .modal-content img { width: 100%; border-radius: 10px; margin-bottom: 10px; }
@@ -35,14 +33,17 @@
         .food-img { width: 85px; height: 85px; border-radius: 12px; object-fit: cover; margin-left: 10px; cursor: pointer; }
 
         .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; padding: 15px; display: flex; gap: 10px; z-index: 1002; }
-        .btn-footer { flex: 1; padding: 15px; border-radius: 30px; border: none; font-weight: bold; }
+        .btn-footer { flex: 1; padding: 15px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
         .btn-orange { background: var(--primary-color); color: white; }
         .btn-green { background: #4caf50; color: white; }
+        
+        .price-text { color: var(--primary-color); font-weight: bold; display: block; margin-top: 5px; }
+        .controls { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
+        .controls button { background: #444; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <!-- شريط تتبع الطلب النشط -->
     <div id="statusContainer">
         <div id="orderStatus" style="color: var(--primary-color); font-weight: bold;">Sipariş Hazırlanıyor...</div>
         <div id="countdownTimer">00:00</div>
@@ -64,7 +65,6 @@
 
     <div id="menuGrid" class="menu-container"></div>
 
-    <!-- نافذة الوصف (Modal) -->
     <div id="dishModal" class="modal">
         <div class="modal-content">
             <img id="modalImg" src="">
@@ -101,8 +101,20 @@
         function toggleSearch() {
             const bar = document.getElementById('searchBar');
             const name = document.getElementById('brandName');
-            bar.style.display = bar.style.display === 'block' ? 'none' : 'block';
-            name.style.display = bar.style.display === 'block' ? 'none' : 'block';
+            const isVisible = bar.style.display === 'block';
+            bar.style.display = isVisible ? 'none' : 'block';
+            name.style.display = isVisible ? 'block' : 'none';
+            if (!isVisible) bar.focus();
+        }
+
+        // --- ميزة محرك البحث الفوري ---
+        function searchFood() {
+            const term = document.getElementById('searchBar').value.toLowerCase();
+            const cards = document.querySelectorAll('.food-card');
+            cards.forEach(card => {
+                const name = card.querySelector('h3').innerText.toLowerCase();
+                card.style.display = name.includes(term) ? 'flex' : 'none';
+            });
         }
 
         function switchCategory(cat, btn) {
@@ -160,6 +172,7 @@
             document.getElementById('orderBtn').innerText = `Sipariş Onayla (${total} TL)`;
         }
 
+        // --- ميزة تأكيد الإرسال (Confirm Order) ---
         function confirmOrder() {
             let itemsStr = ""; let total = 0;
             for (let id in currentCart) {
@@ -169,6 +182,9 @@
                 }
             }
             if (total === 0) return alert("Lütfen yemek seçiniz!");
+
+            // سؤال المستخدم قبل الإرسال
+            if (!confirm(`Toplam Tutar: ${total} TL. Siparişinizi onaylıyor musunuz?`)) return;
 
             const newOrderRef = database.ref('Orders').push();
             const orderId = newOrderRef.key;
@@ -184,9 +200,11 @@
                 timestamp: Date.now()
             }).then(() => {
                 alert("Siparişiniz alındı!");
-                localStorage.setItem('activeOrderId', orderId); // حفظ معرف الطلب للتتبع
+                localStorage.setItem('activeOrderId', orderId);
                 trackOrder(orderId);
-                currentCart = {}; loadMenu(); updateFooter();
+                currentCart = {}; 
+                loadMenu(); 
+                updateFooter();
             });
         }
 
@@ -218,7 +236,6 @@
 
         function scrollToStatus() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-        // استعادة التتبع عند تحديث الصفحة
         const savedId = localStorage.getItem('activeOrderId');
         if (savedId) trackOrder(savedId);
 
